@@ -11,6 +11,7 @@ import { GridBlock } from './Grid/Component'
 import { BannerBlock } from './Banner/Component'
 import { SpacerBlock } from './Spacer/Component'
 import { NewsSection } from './NewsSection/Component'
+import { CTAGridBlock } from './CTAGrid/Component'
 
 const blockComponents = {
   archive: ArchiveBlock,
@@ -22,6 +23,7 @@ const blockComponents = {
   banner: BannerBlock,
   spacer: SpacerBlock,
   newsSection: NewsSection,
+  ctaGrid: CTAGridBlock,
 }
 
 export const RenderBlocks: React.FC<{
@@ -38,6 +40,7 @@ export const RenderBlocks: React.FC<{
           const { blockType } = block
 
           if (blockType && blockType in blockComponents) {
+            //@ts-expect-error block have no components
             const Block = blockComponents[blockType]
 
             if (Block) {

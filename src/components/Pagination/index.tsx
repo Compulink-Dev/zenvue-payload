@@ -32,6 +32,7 @@ export const Pagination: React.FC<{
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
+              //@ts-expect-error selction chance have been excluded
               disabled={!hasPrevPage}
               onClick={() => {
                 router.push(`/posts/page/${page - 1}`)
@@ -88,6 +89,7 @@ export const Pagination: React.FC<{
 
           <PaginationItem>
             <PaginationNext
+              //@ts-expect-error selction chance have been excluded
               disabled={!hasNextPage}
               onClick={() => {
                 router.push(`/posts/page/${page + 1}`)

@@ -23,6 +23,11 @@ import {
 import { Grid } from '@/blocks/Grid/config'
 import { Spacer } from '@/blocks/Spacer/config'
 import { NewsSection } from '@/blocks/NewsSection/config'
+import { CTAGrid } from '@/blocks/CTAGrid/config'
+import { ImageCollage } from '@/blocks/ImageCollage/config'
+import { ImageGrid } from '@/blocks/ImageGrid/config'
+import { ImageContentCollage } from '@/blocks/ImageContentCollage/config'
+import { ImageStackCollage } from '@/blocks/ImageStackCollage/config'
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
@@ -87,6 +92,11 @@ export const Pages: CollectionConfig<'pages'> = {
                 Grid,
                 Spacer,
                 NewsSection,
+                CTAGrid,
+                ImageCollage,
+                ImageGrid,
+                ImageContentCollage,
+                ImageStackCollage,
               ],
               required: true,
               admin: {
