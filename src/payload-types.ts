@@ -72,9 +72,11 @@ export interface Config {
     media: Media;
     categories: Category;
     users: User;
+    'form-submission': FormSubmission;
+    studies: Study;
     redirects: Redirect;
     forms: Form;
-    'form-submissions': FormSubmission;
+    'form-submissions': FormSubmission1;
     search: Search;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
@@ -88,6 +90,8 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    'form-submission': FormSubmissionSelect<false> | FormSubmissionSelect<true>;
+    studies: StudiesSelect<false> | StudiesSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -103,10 +107,14 @@ export interface Config {
   globals: {
     header: Header;
     footer: Footer;
+    'mega-menu': MegaMenu;
+    'social-media': SocialMedia;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
+    'mega-menu': MegaMenuSelect<false> | MegaMenuSelect<true>;
+    'social-media': SocialMediaSelect<false> | SocialMediaSelect<true>;
   };
   locale: null;
   user: User & {
@@ -191,7 +199,70 @@ export interface Page {
       | null;
     media?: (string | null) | Media;
   };
-  layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
+  layout: (
+    | CallToActionBlock
+    | ContentBlock
+    | MediaBlock
+    | ArchiveBlock
+    | FormBlock
+    | {
+        columns?:
+          | {
+              content?: {
+                root: {
+                  type: string;
+                  children: {
+                    type: string;
+                    version: number;
+                    [k: string]: unknown;
+                  }[];
+                  direction: ('ltr' | 'rtl') | null;
+                  format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                  indent: number;
+                  version: number;
+                };
+                [k: string]: unknown;
+              } | null;
+              width: 'third' | 'half' | 'twoThirds' | 'full';
+              alignment: 'left' | 'center' | 'right';
+              accentLine?: boolean | null;
+              accentLineAlignment?: ('left' | 'right') | null;
+              paddingTop?: ('small' | 'medium' | 'large') | null;
+              paddingBottom?: ('small' | 'medium' | 'large') | null;
+              backgroundColor?: ('none' | 'red' | 'blue' | 'orange') | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'grid';
+      }
+    | {
+        size?: ('xs' | 'small' | 'medium' | 'large' | 'xl' | 'custom') | null;
+        customHeight?: number | null;
+        unit?: ('px' | 'rem' | 'vh') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'spacer';
+      }
+    | {
+        title: string;
+        subtitle?: string | null;
+        /**
+         * Number of news items to display (0 for all)
+         */
+        limit?: number | null;
+        /**
+         * Show category filter buttons
+         */
+        showCategoryFilter?: boolean | null;
+        categoriesToShow?: ('announcement' | 'event' | 'update' | 'newsletter' | 'report')[] | null;
+        layout?: ('grid' | 'list' | 'carousel') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'newsSection';
+      }
+  )[];
   meta?: {
     title?: string | null;
     /**
@@ -736,6 +807,39 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "form-submission".
+ */
+export interface FormSubmission {
+  id: string;
+  from?: string | null;
+  message?: string | null;
+  source?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "studies".
+ */
+export interface Study {
+  id: string;
+  title: string;
+  featuredImage: string | Media;
+  client?: string | null;
+  location?: string | null;
+  categories?: (string | Category)[] | null;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    keywords?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -764,7 +868,7 @@ export interface Redirect {
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions".
  */
-export interface FormSubmission {
+export interface FormSubmission1 {
   id: string;
   form: string | Form;
   submissionData?:
@@ -928,6 +1032,14 @@ export interface PayloadLockedDocument {
         value: string | User;
       } | null)
     | ({
+        relationTo: 'form-submission';
+        value: string | FormSubmission;
+      } | null)
+    | ({
+        relationTo: 'studies';
+        value: string | Study;
+      } | null)
+    | ({
         relationTo: 'redirects';
         value: string | Redirect;
       } | null)
@@ -937,7 +1049,7 @@ export interface PayloadLockedDocument {
       } | null)
     | ({
         relationTo: 'form-submissions';
-        value: string | FormSubmission;
+        value: string | FormSubmission1;
       } | null)
     | ({
         relationTo: 'search';
@@ -1025,6 +1137,46 @@ export interface PagesSelect<T extends boolean = true> {
         mediaBlock?: T | MediaBlockSelect<T>;
         archive?: T | ArchiveBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        grid?:
+          | T
+          | {
+              columns?:
+                | T
+                | {
+                    content?: T;
+                    width?: T;
+                    alignment?: T;
+                    accentLine?: T;
+                    accentLineAlignment?: T;
+                    paddingTop?: T;
+                    paddingBottom?: T;
+                    backgroundColor?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        spacer?:
+          | T
+          | {
+              size?: T;
+              customHeight?: T;
+              unit?: T;
+              id?: T;
+              blockName?: T;
+            };
+        newsSection?:
+          | T
+          | {
+              title?: T;
+              subtitle?: T;
+              limit?: T;
+              showCategoryFilter?: T;
+              categoriesToShow?: T;
+              layout?: T;
+              id?: T;
+              blockName?: T;
+            };
       };
   meta?:
     | T
@@ -1290,6 +1442,39 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "form-submission_select".
+ */
+export interface FormSubmissionSelect<T extends boolean = true> {
+  from?: T;
+  message?: T;
+  source?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "studies_select".
+ */
+export interface StudiesSelect<T extends boolean = true> {
+  title?: T;
+  featuredImage?: T;
+  client?: T;
+  location?: T;
+  categories?: T;
+  slug?: T;
+  slugLock?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        keywords?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1606,6 +1791,62 @@ export interface Footer {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mega-menu".
+ */
+export interface MegaMenu {
+  id: string;
+  nav?:
+    | {
+        /**
+         * Select what you need only
+         */
+        link: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: string | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: string | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+        };
+        /**
+         * Optional description for the menu item
+         */
+        description?: string | null;
+        /**
+         * Optional image for mega menu items
+         */
+        featuredImage?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "social-media".
+ */
+export interface SocialMedia {
+  id: string;
+  links?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
@@ -1644,6 +1885,47 @@ export interface FooterSelect<T extends boolean = true> {
               url?: T;
               label?: T;
             };
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mega-menu_select".
+ */
+export interface MegaMenuSelect<T extends boolean = true> {
+  nav?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+            };
+        description?: T;
+        featuredImage?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "social-media_select".
+ */
+export interface SocialMediaSelect<T extends boolean = true> {
+  links?:
+    | T
+    | {
+        label?: T;
+        url?: T;
         id?: T;
       };
   updatedAt?: T;
